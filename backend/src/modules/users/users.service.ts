@@ -1,26 +1,59 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { LoginUserDto } from './dto/login-user.dto';
+import * as bcrypt from 'bcryptjs';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UsersService {
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+  constructor(
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+    private readonly jwtService: JwtService,
+  ) {}
+
+  async findByEmail(email: string) {
+    return this.userRepository.findOne({
+      where: { email },
+      select: ['id', 'name', 'email', 'password'],
+    });
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async findById(id: number) {
+    return this.userRepository.findOne({ where: { id } });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async create(dto: CreateUserDto) {
+    const { name, email, password } = dto;
+    const userExist = await this.findByEmail(email);
+    if (userExist) throw new BadRequestException('User already exists');
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = this.userRepository.create({
+      name,
+      email,
+      password: hashedPassword,
+    });
+
+    await this.userRepository.save(newUser);
+    return { message: 'User Created', userId: newUser.id };
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
+  async login(dto: LoginUserDto) {
+    const { email, password } = dto;
+    const user = await this.findByEmail(email);
+    if (!user) throw new UnauthorizedException('Invalid credentials');
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) throw new UnauthorizedException('Invalid credentials');
+
+    const payload = { id: user.id, email: user.email };
+    const token = await this.jwtService.signAsync(payload);
+
+    return { message: 'User connected', token };
   }
 }
