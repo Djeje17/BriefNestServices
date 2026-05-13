@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UsersService } from './users.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-import { validate } from 'class-validator';
+import { JwtService } from '@nestjs/jwt'; // Importe le JwtService
 
 describe('UsersService & Entity', () => {
   let service: UsersService;
@@ -13,16 +13,20 @@ describe('UsersService & Entity', () => {
     findOne: jest.fn(),
   };
 
+  const mockJwtService = {
+    sign: jest.fn().mockReturnValue('fake_token'),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UsersService,
         { provide: getRepositoryToken(User), useValue: mockUserRepository },
+        { provide: JwtService, useValue: mockJwtService }, // Ajoute cette ligne
       ],
     }).compile();
     service = module.get<UsersService>(UsersService);
   });
-
   // TEST 1: Validation de l'email
   it('should fail validation with an invalid email', async () => {
     const user = new User();
