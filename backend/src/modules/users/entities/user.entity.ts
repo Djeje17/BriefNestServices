@@ -1,8 +1,9 @@
-
+import { Post } from "../../posts/entities/post.entity";
 import{
     Entity,
     PrimaryGeneratedColumn,
     Column,
+    OneToMany,
 
 }from 'typeorm';
 
@@ -20,5 +21,7 @@ export class User {
     @Column({select: false})
     password: string;
 
+    @OneToMany(() => Post, (post) => post.user, { cascade: true, eager: true })
+  post: Post[];
     
 }
