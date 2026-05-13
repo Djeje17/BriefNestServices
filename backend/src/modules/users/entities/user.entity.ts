@@ -4,8 +4,8 @@ import {
   PrimaryGeneratedColumn,
   Column,
   OneToMany,
-
 } from 'typeorm';
+import { Exclude } from 'class-transformer';
 
 @Entity('users')
 export class User {
@@ -18,10 +18,10 @@ export class User {
   @Column({ unique: true, length: 150 })
   email: string;
 
-  @Column({ select: false })
+  @Exclude() // Empêche l'affichage dans le JSON
+  @Column({ select: false }) // Empêche l'affichage dans les requêtes SQL par défaut
   password: string;
 
   @OneToMany(() => Post, (post) => post.user, { cascade: true, eager: true })
   post: Post[];
-
 }
