@@ -12,10 +12,11 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { AuthGuard } from './auth.guard';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
   @Post('auth/register')
   register(@Body() createUserDto: CreateUserDto) {
@@ -24,12 +25,14 @@ export class UsersController {
 
   @Post('auth/login')
   @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
   login(@Body() loginUserDto: LoginUserDto) {
     return this.usersService.login(loginUserDto);
   }
 
   @UseGuards(AuthGuard)
   @Get('me')
+  @ApiBearerAuth()
   getMe(@Request() req) {
     return this.usersService.findById(req.user.id);
   }
