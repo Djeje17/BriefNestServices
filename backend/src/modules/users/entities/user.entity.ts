@@ -1,27 +1,27 @@
 import { Post } from "../../posts/entities/post.entity";
-import{
-    Entity,
-    PrimaryGeneratedColumn,
-    Column,
-    OneToMany,
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
 
-}from 'typeorm';
+} from 'typeorm';
 
 @Entity('users')
 export class User {
-    @PrimaryGeneratedColumn()
-    id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Column({length: 100})
-    name: string;
+  @Column({ length: 100 })
+  name: string;
 
-    @Column({unique: true, length: 150})
-    email: string;
+  @Column({ unique: true, length: 150 })
+  email: string;
 
-    @Column({select: false})
-    password: string;
+  @Column({ select: false })
+  password: string;
 
-    @OneToMany(() => Post, (post) => post.user, { cascade: true, eager: true })
+  @OneToMany(() => Post, (post) => post.user, { cascade: true, eager: true })
   post: Post[];
-    
+
 }
