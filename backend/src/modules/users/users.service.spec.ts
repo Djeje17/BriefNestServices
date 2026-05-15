@@ -59,6 +59,6 @@ describe('UsersService & Entity', () => {
 
   it('should have an empty posts array by default', () => {
     const user = new User();
-    expect(user.posts).toBeUndefined();
+    expect(user.post).toBeUndefined();
   });
 });
