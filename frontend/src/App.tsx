@@ -11,7 +11,10 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <div className="flex flex-col min-h-screen bg-background text-foreground selection:bg-cyan-500/30">
+        <a href="#main-content" className="skip-to-content">
+          Skip to main content
+        </a>
+        <div className="min-h-screen bg-[#020817] text-slate-50 font-sans selection:bg-cyan-500/30">
           {/* Decorative background elements */}
           <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none -z-10">
             <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-cyan-500/10 blur-[120px] rounded-full animate-pulse" />

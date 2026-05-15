@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import api from "@/api/axios";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, Heart, Share2, Loader2, Trash2 } from "lucide-react";
+import { MessageSquare, Heart, Loader2, Trash2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { CreatePost } from "@/components/posts/CreatePost";
 import { EditPost } from "@/components/posts/EditPost";
@@ -24,8 +24,9 @@ export default function Home() {
 
   const handleSoon = () => {
     toast({
-      title: "Coming Soon!",
-      description: "This feature is currently under development. Stay tuned!",
+      title: "✨ Coming Soon",
+      description: "We're working hard on this feature. Stay tuned!",
+      className: "bg-white/[0.03] border-white/10 backdrop-blur-xl text-white rounded-2xl shadow-2xl py-6 px-6",
     });
   };
 
@@ -51,15 +52,17 @@ export default function Home() {
       await api.delete(`/posts/${postId}`);
       fetchPosts();
       toast({
-        title: "Post Deleted",
+        title: "🗑️ Post Deleted",
         description: "Your post has been removed successfully.",
+        className: "bg-white/[0.03] border-white/10 backdrop-blur-xl text-white rounded-2xl shadow-2xl py-6 px-6",
       });
     } catch (error) {
       console.error("Failed to delete post", error);
       toast({
-        title: "Error",
+        title: "❌ Error",
         description: "Failed to delete post. Please try again.",
         variant: "destructive",
+        className: "rounded-2xl py-6 px-6 shadow-2xl",
       });
     }
   };
@@ -68,49 +71,55 @@ export default function Home() {
     fetchPosts();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[calc(100svh-160px)]">
-        <Loader2 className="w-8 h-8 animate-spin text-cyan-400" />
-      </div>
-    );
-  }
-
   return (
-    <main className="container max-w-4xl py-8 px-4">
-      <header className="flex items-center justify-between mb-10">
-        <div>
-          <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-2">
-            Recent <span className="text-cyan-400">Posts</span>
+    <main id="main-content" className="container max-w-4xl py-12 px-4 outline-none" tabIndex={-1}>
+      <header className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+        <div className="space-y-2">
+          <h1 className="text-5xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-white to-white/60">
+            Feed
           </h1>
-          <p className="text-muted-foreground">Discover what the community is sharing.</p>
+          <p className="text-slate-400 text-lg font-medium">
+            Explore the latest thoughts from the BriefNest community.
+          </p>
         </div>
         {isAuthenticated && <CreatePost onPostCreated={fetchPosts} />}
       </header>
 
-      <div className="grid gap-6">
-        {posts.length === 0 ? (
-          <Card className="border-dashed border-white/10 bg-white/5 py-12">
+      <div className="grid gap-10">
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-20 gap-4">
+            <Loader2 className="w-10 h-10 animate-spin text-cyan-500" />
+            <p className="text-slate-400 font-medium animate-pulse">Loading amazing stories...</p>
+          </div>
+        ) : posts.length === 0 ? (
+          <Card className="border-dashed border-white/10 bg-transparent py-20">
             <CardContent className="flex flex-col items-center justify-center text-center">
-              <MessageSquare className="w-12 h-12 text-muted-foreground mb-4" />
-              <p className="text-xl font-medium">No posts yet</p>
-              <p className="text-muted-foreground mt-1">Be the first one to share something!</p>
+              <p className="text-slate-400 text-lg">No posts yet. Be the first to share something!</p>
             </CardContent>
           </Card>
         ) : (
           posts.map((post) => (
-            <Card key={post.id} className="border-white/10 bg-white/5 backdrop-blur-sm hover:bg-white/10 transition-colors duration-300">
-              <CardHeader>
+            <Card 
+              key={post.id} 
+              className="group border-white/10 bg-white/[0.02] hover:bg-white/[0.04] backdrop-blur-sm transition-all duration-500 rounded-2xl overflow-hidden"
+            >
+              <CardHeader className="pb-4">
                 <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-cyan-400 to-purple-500 flex items-center justify-center text-xs font-bold">
-                      {post.user.name[0].toUpperCase()}
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-lg">
+                      {post.user.name.charAt(0).toUpperCase()}
                     </div>
-                    <span className="text-sm font-medium text-cyan-300">@{post.user.name}</span>
+                    <div>
+                      <CardTitle className="text-xl font-bold group-hover:text-cyan-400 transition-colors">
+                        {post.title}
+                      </CardTitle>
+                      <p className="text-xs text-slate-500 font-medium">
+                        Posted by <span className="text-slate-300">@{post.user.name}</span>
+                      </p>
+                    </div>
                   </div>
-                  <span className="text-xs text-muted-foreground">{new Date(post.createdAt).toLocaleDateString()}</span>
+                  <span className="text-xs text-slate-500">{new Date(post.createdAt).toLocaleDateString()}</span>
                 </div>
-                <CardTitle className="text-2xl">{post.title}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground leading-relaxed">{post.description}</p>

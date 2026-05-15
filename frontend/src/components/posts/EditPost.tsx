@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Pencil, Loader2 } from "lucide-react";
+import { useToast } from "@/components/hooks/use-toast";
 
 interface EditPostProps {
   post: {
@@ -29,6 +30,7 @@ export function EditPost({ post, onPostUpdated }: EditPostProps) {
   const [title, setTitle] = useState(post.title);
   const [description, setDescription] = useState(post.description);
   const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,9 +42,19 @@ export function EditPost({ post, onPostUpdated }: EditPostProps) {
       });
       setOpen(false);
       onPostUpdated();
+      toast({
+        title: "📝 Post Updated",
+        description: "Your changes have been saved successfully.",
+        className: "bg-white/[0.03] border-white/10 backdrop-blur-xl text-white rounded-2xl shadow-2xl py-6 px-6",
+      });
     } catch (error: any) {
       console.error("Failed to update post", error);
-      alert(`Failed to update post: ${error.response?.data?.message || "Unknown error"}`);
+      toast({
+        title: "❌ Error",
+        description: error.response?.data?.message || "Failed to update post.",
+        variant: "destructive",
+        className: "rounded-2xl py-6 px-6 shadow-2xl",
+      });
     } finally {
       setLoading(false);
     }
@@ -51,21 +63,24 @@ export function EditPost({ post, onPostUpdated }: EditPostProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="sm" className="gap-2 hover:text-cyan-400 hover:bg-cyan-400/10">
+        <Button variant="ghost" size="sm" className="gap-2 text-slate-400 hover:text-cyan-400 hover:bg-cyan-400/10 rounded-lg transition-all">
           <Pencil className="w-4 h-4" />
           Edit
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[525px] border-white/10 bg-white/5 backdrop-blur-2xl">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold">Edit Post</DialogTitle>
-          <DialogDescription>
+      <DialogContent className="sm:max-w-[500px] border-white/10 bg-white/[0.03] backdrop-blur-2xl rounded-2xl shadow-3xl">
+        <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/[0.05] via-transparent to-purple-500/[0.05] pointer-events-none rounded-2xl" />
+        <DialogHeader className="pt-6 px-2">
+          <DialogTitle className="text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-white to-white/60">
+            Edit Post
+          </DialogTitle>
+          <DialogDescription className="text-slate-400 text-base">
             Modify your post details below.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="grid gap-6 py-4">
-          <div className="grid gap-2">
-            <Label htmlFor="edit-title" className="text-sm font-medium">
+        <form onSubmit={handleSubmit} className="grid gap-8 py-6 px-2">
+          <div className="grid gap-3">
+            <Label htmlFor="edit-title" className="text-sm font-semibold text-slate-200 ml-1">
               Title
             </Label>
             <Input
@@ -73,11 +88,11 @@ export function EditPost({ post, onPostUpdated }: EditPostProps) {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
-              className="bg-black/20 border-white/10 focus-visible:ring-cyan-500"
+              className="h-12 bg-white/[0.03] border-white/10 focus:border-cyan-500/50 focus:ring-cyan-500/20 rounded-xl transition-all"
             />
           </div>
-          <div className="grid gap-2">
-            <Label htmlFor="edit-description" className="text-sm font-medium">
+          <div className="grid gap-3">
+            <Label htmlFor="edit-description" className="text-sm font-semibold text-slate-200 ml-1">
               Content
             </Label>
             <Textarea
@@ -86,20 +101,20 @@ export function EditPost({ post, onPostUpdated }: EditPostProps) {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               required
-              className="bg-black/20 border-white/10 focus-visible:ring-cyan-500 resize-none"
+              className="bg-white/[0.03] border-white/10 focus:border-cyan-500/50 focus:ring-cyan-500/20 rounded-xl transition-all resize-none py-4"
             />
           </div>
-          <DialogFooter>
+          <DialogFooter className="pt-2">
             <Button
               type="submit"
               disabled={loading}
-              className="w-full bg-cyan-500 hover:bg-cyan-600"
+              className="w-full h-12 text-base font-bold bg-white text-black hover:bg-slate-200 transition-all duration-300 rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.1)] active:scale-[0.98]"
             >
               {loading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Updating...
-                </>
+                <div className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>Updating...</span>
+                </div>
               ) : (
                 "Save Changes"
               )}
